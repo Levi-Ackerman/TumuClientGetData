@@ -77,7 +77,7 @@ public class MainActivity extends FinalActivity implements
 	List<String> write_elems, write_elems100, write_elems50;
 
 	int index = 0;
-	double lastX = 0, lastY = 0;
+	float lastX = 0, lastY = 0;
 	class Elem {
 		public Elem(long milliSec, float acce) {
 			this.milliSec = milliSec;
@@ -100,7 +100,7 @@ public class MainActivity extends FinalActivity implements
 				long delay = (System.currentTimeMillis() - startMillin);
 				time_elems.add(new Elem(delay, event.values[2]));
 			}
-			text = "" + event.values[2];
+			text = String.format("%.7f",event.values[2]);
 			textView.setText(text);
 		}
 
@@ -125,8 +125,7 @@ public class MainActivity extends FinalActivity implements
 				time_elems.remove(0);
 			} else {
 				for (int i = 0; i < count; i++) {
-					write_elems.add(time_elems.get(0).milliSec+"\t"+time_elems.get(0).acce+"\n");
-					//给100hz的插值
+					write_elems.add(time_elems.get(0).milliSec+"\t"+String.format("%.7f",time_elems.get(0).acce)+"\n");
 					long sec = time_elems.get(0).milliSec;
 					if (sec < 1000/Frequence2 * index) {
 						lastX = sec;
@@ -135,16 +134,16 @@ public class MainActivity extends FinalActivity implements
 						lastX = sec;
 						lastY = time_elems.get(0).acce;
 						if(index++%2==0)
-							write_elems50.add(lastX +"\t"+lastY+"\n");
-						write_elems100.add(lastX + "\t" + lastY + "\n");
+							write_elems50.add(lastX +"\t"+String.format("%.7f",lastY)+"\n");
+						write_elems100.add(lastX + "\t" + String.format("%.7f",lastY) + "\n");
 					} else {
 						float y = time_elems.get(0).acce;
 						lastY = (y - lastY) / (sec - lastX)
 								* (1000/Frequence2 * index - lastX) + lastY;
 						lastX = 1000/Frequence2 * index;
 						if(index++%2==0)
-							write_elems50.add(lastX +"\t"+lastY+"\n");
-						write_elems100.add(lastX + "\t" + lastY + "\n");
+							write_elems50.add(lastX +"\t"+String.format("%.7f",lastY)+"\n");
+						write_elems100.add(lastX + "\t" + String.format("%.7f",lastY) + "\n");
 					}
 					time_elems.remove(0);
 				}

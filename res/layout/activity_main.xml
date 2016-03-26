@@ -1,6 +1,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
+    android:background="@android:color/white"
     android:layout_height="match_parent" >
 
     <ScrollView
@@ -17,12 +18,16 @@
 
             <TextView
                 android:id="@+id/textView2"
+                android:textColor="@android:color/black"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:textSize="20sp"
                 android:text="@string/initString" />
 
             <TextView
                 android:id="@+id/textView1"
+                android:textColor="@android:color/black"
+
                 android:textSize="@dimen/textsize"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -30,8 +35,11 @@
 
             <CheckBox
                 android:id="@+id/cb_start"
+                android:textColor="@android:color/black"
+
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:textSize="20sp"
                 android:text="开始记录" />
 
             <TextView
@@ -41,6 +49,8 @@
                 android:text="" />
 
             <EditText
+                android:visibility="gone"
+                android:textColor="@android:color/black"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:hint="输入文件名"

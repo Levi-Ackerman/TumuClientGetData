@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">zhendongchuanganqi</string>
+    <string name="app_name">简易程序</string>
     <string name="hello_world">Hello world!</string>
     <string name="initString">Z轴加速度</string>
     <string name="click_to_start">点击开始记录</string>

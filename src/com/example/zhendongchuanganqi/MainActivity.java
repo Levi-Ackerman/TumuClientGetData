@@ -62,16 +62,19 @@ public class MainActivity extends FinalActivity implements
 		sensor = sensors.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
 		time_elems = new ArrayList<>();
 		write_elems = new ArrayList<>();
+		write_elems50 =new ArrayList<>();
+		write_elems100 = new ArrayList<>();
 	}
 
 	long startMillin;
-	FileWriter fileWriter50;
+	FileWriter fileWriter;
 	FileWriter fileWriter100;
+	FileWriter fileWriter50;
 	private int Frequence1 = 50;
 	private int Frequence2 = 100;
 
 	List<Elem> time_elems;
-	List<String> write_elems;
+	List<String> write_elems, write_elems100, write_elems50;
 
 	int index = 0;
 	double lastX = 0, lastY = 0;
@@ -122,31 +125,34 @@ public class MainActivity extends FinalActivity implements
 				time_elems.remove(0);
 			} else {
 				for (int i = 0; i < count; i++) {
+					write_elems.add(time_elems.get(0).milliSec+"\t"+time_elems.get(0).acce+"\n");
+					//给100hz的插值
 					long sec = time_elems.get(0).milliSec;
-					if (sec < 1000/Frequence1 * index) {
+					if (sec < 1000/Frequence2 * index) {
 						lastX = sec;
 						lastY = time_elems.get(0).acce;
-					} else if (sec == 1000/Frequence1 * index) {
+					} else if (sec == 1000/Frequence2 * index) {
 						lastX = sec;
 						lastY = time_elems.get(0).acce;
-						index++;
-						write_elems.add(lastX + "\t" + lastY + "\n");
+						if(index++%2==0)
+							write_elems50.add(lastX +"\t"+lastY+"\n");
+						write_elems100.add(lastX + "\t" + lastY + "\n");
 					} else {
 						float y = time_elems.get(0).acce;
 						lastY = (y - lastY) / (sec - lastX)
-								* (1000/Frequence1 * index - lastX) + lastY;
-						lastX = 1000/Frequence1 * index;
-						index++;
-						write_elems.add(lastX + "\t" + lastY + "\n");
+								* (1000/Frequence2 * index - lastX) + lastY;
+						lastX = 1000/Frequence2 * index;
+						if(index++%2==0)
+							write_elems50.add(lastX +"\t"+lastY+"\n");
+						write_elems100.add(lastX + "\t" + lastY + "\n");
 					}
-
 					time_elems.remove(0);
 				}
 			}
 		}
 	}
 
-	public String filepath50,filepath100;
+	public String filepath, filepath100, filepath50;
 
 	@Override
 	public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -155,15 +161,19 @@ public class MainActivity extends FinalActivity implements
 			isFirst = true;
 			String name = etName.getText().toString().trim();
 			if(TextUtils.isEmpty(name)){
-				filepath50 = Environment.getExternalStorageDirectory().toString()
-						+ "/AccelerateData.50.txt";
+				filepath = Environment.getExternalStorageDirectory().toString()
+						+ "/AccelerateData.txt";
 				filepath100 = Environment.getExternalStorageDirectory().toString()
 						+ "/AccelerateData.100.txt";
-			}else{
 				filepath50 = Environment.getExternalStorageDirectory().toString()
-						+ "/"+name+".50.txt";
+						+ "/AccelerateData.50.txt";
+			}else{
+				filepath = Environment.getExternalStorageDirectory().toString()
+						+ "/"+name+".txt";
 				filepath100 = Environment.getExternalStorageDirectory().toString()
 						+ "/"+name+".100.txt";
+				filepath50 = Environment.getExternalStorageDirectory().toString()
+						+ "/"+name+".50.txt";
 			}
 			boolean isAvailable = sensors.registerListener(listener, sensor,
 					SensorManager.SENSOR_DELAY_FASTEST);
@@ -181,6 +191,9 @@ public class MainActivity extends FinalActivity implements
 								});
 			} else {
 				time_elems.clear();
+				write_elems100.clear();
+				write_elems.clear();
+				write_elems50.clear();
 				index = 0;
 				lastX = lastY = 0;
 				isFirst = true;
@@ -194,6 +207,10 @@ public class MainActivity extends FinalActivity implements
 						+ calendar.get(Calendar.MILLISECOND);
 				tv_time.setText(tmText);
 				try {
+					fileWriter = new FileWriter(filepath, false);
+					fileWriter.write(tmText+"\n");
+					fileWriter100 = new FileWriter(filepath100, false);
+					fileWriter100.write(tmText+"\n");
 					fileWriter50 = new FileWriter(filepath50, false);
 					fileWriter50.write(tmText+"\n");
 				} catch (IOException e) {
@@ -204,14 +221,30 @@ public class MainActivity extends FinalActivity implements
 			timer.cancel();
 			sensors.unregisterListener(listener);
 			try {
+				for (String write_elem : write_elems100) {
+					try {
+						fileWriter100.write(write_elem);
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
 				for (String write_elem : write_elems) {
+					try {
+						fileWriter.write(write_elem);
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+				for (String write_elem : write_elems50) {
 					try {
 						fileWriter50.write(write_elem);
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
 				}
+				fileWriter.close();
 				fileWriter50.close();
+				fileWriter100.close();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
